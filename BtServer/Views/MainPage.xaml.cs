@@ -3,6 +3,7 @@
 using BtServer.ViewModels;
 
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Navigation;
 
 namespace BtServer.Views
 {
@@ -15,4 +16,6 @@ namespace BtServer.Views
             InitializeComponent();
         }
     }
+
+
 }
