@@ -117,8 +117,18 @@
     <Compile Include="Helpers\NavHelper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Constants\PageTokens.cs" />
+    <Compile Include="ViewModels\AttributeType.cs" />
+    <Compile Include="ViewModels\BluetoothLEAttributeDisplay.cs" />
+    <Compile Include="ViewModels\CalculatorCharacteristics.cs" />
+    <Compile Include="ViewModels\CalculatorOperators.cs" />
+    <Compile Include="ViewModels\Constants.cs" />
+    <Compile Include="ViewModels\GattNativeCharacteristicUuid.cs" />
+    <Compile Include="ViewModels\GattNativeServiceUuid.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="ViewModels\NotifyType.cs" />
+    <Compile Include="ViewModels\PresentationFormats.cs" />
     <Compile Include="ViewModels\ShellViewModel.cs" />
+    <Compile Include="ViewModels\Utilities.cs" />
     <Compile Include="Views\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

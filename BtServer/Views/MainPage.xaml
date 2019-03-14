@@ -6,6 +6,8 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Style="{StaticResource PageStyle}"
     xmlns:prismMvvm="using:Prism.Windows.Mvvm"
+    xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     prismMvvm:ViewModelLocator.AutoWireViewModel="True" 
     mc:Ignorable="d">
     <Grid
@@ -22,12 +24,66 @@
             <Grid.RowDefinitions>
                 <RowDefinition></RowDefinition>
                 <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
             </Grid.RowDefinitions>
             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Visibility="{Binding ServerPanelVisible}">
                 <Button Content="{Binding PublishContent}" Command="{Binding PublishCommand}"></Button>
             </StackPanel>
             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" Visibility="{Binding PeripheralWarningPanelVisible}">
                 <TextBlock TextWrapping="Wrap">Your device may not support being a BT LE server</TextBlock>
+            </StackPanel>
+            <StackPanel Orientation="Vertical"
+                        Grid.Row="0"
+                        Grid.Column="1">
+                <TextBlock>
+                    Selected device: <Run Text="{Binding SelectedBleDeviceName}" FontWeight="Bold"/>
+                </TextBlock>
+                <Button Content="Connect"
+                        Command="{Binding ConnectButtonCommand}"
+                        IsEnabled="{Binding ConnectButtonEnabled}"
+                        Visibility="{Binding ConnectButtonVisibility}"></Button>
+            </StackPanel>
+            <StackPanel Grid.Row="1" Grid.Column="1">
+                <ComboBox PlaceholderText="Choose a service"
+                          ItemsSource="{Binding ServiceCollection}"
+                          SelectedItem="{Binding ServiceListSelectedItem}">
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="SelectionChanged">
+                            <core:InvokeCommandAction Command="{Binding ServiceListSelectionChangedCommand}"></core:InvokeCommandAction>
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </ComboBox>
+            </StackPanel>
+            <StackPanel Grid.Row="2"
+                        Grid.Column="1"
+                        Orientation="Vertical">
+                <ComboBox PlaceholderText="Choose a characteristic"
+                          ItemsSource="{Binding CharacteristicCollection}"
+                          Visibility="{Binding CharacteristicListVisibility}"
+                          SelectedItem="{Binding CharacteristicListSelectedItem}">
+                    <interactivity:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="SelectionChanged">
+                            <core:InvokeCommandAction Command="{Binding CharacteristicListSelectionChangedCommand}"></core:InvokeCommandAction>
+                        </core:EventTriggerBehavior>
+                    </interactivity:Interaction.Behaviors>
+                </ComboBox>
+                <Button Content="Read Value"
+                        Command="{Binding CharacteristicReadButtonClickCommand}"></Button>
+                <Button Content="{Binding ValueChangedSubscribeToggleContent}"
+                        Command="{Binding ValueChangedSubscribeToggleClickCommand}"></Button>
+            </StackPanel>
+            <StackPanel Visibility="{Binding CharacteristicWritePanelVisibility}"
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Orientation="Vertical">
+                <TextBox PlaceholderText="Enter text/number to send"
+                         Text="{Binding CharacteristicWriteValueText}"></TextBox>
+                <Button Content="Write Value as Number"
+                        Command="{Binding CharacteristicWriteButtonIntClickCommand}"></Button>
+                <Button Content="Write Value as UTF-8"
+                        Command="{Binding CharacteristicWriteButtonClickCommand}"></Button>
+                <TextBlock Text="{Binding CharacteristicLatestValueText}"></TextBlock>
             </StackPanel>
             <!--The SystemControlPageBackgroundChromeLowBrush background represents where you should place your content. 
                 Place your content here.-->
