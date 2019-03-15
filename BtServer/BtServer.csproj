@@ -119,11 +119,13 @@
     <Compile Include="Constants\PageTokens.cs" />
     <Compile Include="ViewModels\AttributeType.cs" />
     <Compile Include="ViewModels\BluetoothLEAttributeDisplay.cs" />
+    <Compile Include="ViewModels\BluetoothLEDeviceDisplay.cs" />
     <Compile Include="ViewModels\CalculatorCharacteristics.cs" />
     <Compile Include="ViewModels\CalculatorOperators.cs" />
     <Compile Include="ViewModels\Constants.cs" />
     <Compile Include="ViewModels\GattNativeCharacteristicUuid.cs" />
     <Compile Include="ViewModels\GattNativeServiceUuid.cs" />
+    <Compile Include="ViewModels\InvertConverter.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\NotifyType.cs" />
     <Compile Include="ViewModels\PresentationFormats.cs" />
