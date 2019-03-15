@@ -249,7 +249,7 @@ namespace BtServer.ViewModels
             var success = await ClearBluetoothLEDeviceAsync();
             if (!success)
             {
-                //rootPage.NotifyUser("Error: Unable to reset app state", NotifyType.ErrorMessage);
+                rootPageNotifyUser("Error: Unable to reset app state", NotifyType.ErrorMessage);
             }
 
             StopBleDeviceWatcher();
@@ -460,7 +460,7 @@ namespace BtServer.ViewModels
         private void ResultCharacteristic_SubscribedClientsChanged(GattLocalCharacteristic sender, object args)
 
         {
-            //rootPage.NotifyUser($"New device subscribed. New subscribed count: {sender.SubscribedClients.Count}",NotifyType.StatusMessage);
+            rootPageNotifyUser($"New device subscribed. New subscribed count: {sender.SubscribedClients.Count}",NotifyType.StatusMessage);
         }
 
 
@@ -477,7 +477,7 @@ namespace BtServer.ViewModels
             // Aborted - Indicates that the system was unable to submit the advertisement request, or it was canceled due to resource contention.
 
 
-            //rootPage.NotifyUser($"New Advertisement Status: {sender.AdvertisementStatus}", NotifyType.StatusMessage);
+            rootPageNotifyUser($"New Advertisement Status: {sender.AdvertisementStatus}", NotifyType.StatusMessage);
         }
 
         private async void ResultCharacteristic_ReadRequestedAsync(GattLocalCharacteristic sender,
@@ -556,7 +556,7 @@ namespace BtServer.ViewModels
 
                     if (operand2Received == 0 || operand1Received == -0x80000000 && operand2Received == -1)
                     {
-                        //rootPage.NotifyUser("Division overflow", NotifyType.ErrorMessage);
+                        rootPageNotifyUser("Division overflow", NotifyType.ErrorMessage);
                     }
 
                     else
@@ -589,7 +589,7 @@ namespace BtServer.ViewModels
             var results = await resultCharacteristic.NotifyValueAsync(writer.DetachBuffer());
 
 
-            //rootPage.NotifyUser($"Sent value {computedValue} to clients.", NotifyType.StatusMessage);
+            rootPageNotifyUser($"Sent value {computedValue} to clients.", NotifyType.StatusMessage);
 
             foreach (var result in results)
 
@@ -770,7 +770,7 @@ namespace BtServer.ViewModels
             var result = await selectedCharacteristic.GetDescriptorsAsync(BluetoothCacheMode.Uncached);
             if (result.Status != GattCommunicationStatus.Success)
             {
-                //rootPage.NotifyUser("Descriptor read failure: " + result.Status.ToString(), NotifyType.ErrorMessage);
+                rootPageNotifyUser("Descriptor read failure: " + result.Status.ToString(), NotifyType.ErrorMessage);
             }
 
             // BT_Code: There's no need to access presentation format unless there's at least one. 
@@ -811,7 +811,7 @@ namespace BtServer.ViewModels
             if (result.Status == GattCommunicationStatus.Success)
             {
                 var formattedResult = FormatValueByPresentation(result.Value, presentationFormat);
-                //rootPage.NotifyUser($"Read result: {formattedResult}", NotifyType.StatusMessage);
+                rootPageNotifyUser($"Read result: {formattedResult}", NotifyType.StatusMessage);
             }
         }
 
@@ -857,14 +857,14 @@ namespace BtServer.ViewModels
             }
             catch (Exception ex) when (ex.HResult == E_BLUETOOTH_ATT_INVALID_PDU)
             {
-                //rootPage.NotifyUser(ex.Message, NotifyType.ErrorMessage);
+                rootPageNotifyUser(ex.Message, NotifyType.ErrorMessage);
                 return false;
             }
             catch (Exception ex) when (ex.HResult == E_BLUETOOTH_ATT_WRITE_NOT_PERMITTED ||
                                        ex.HResult == E_ACCESSDENIED)
             {
                 // This usually happens when a device reports that it support writing, but it actually doesn't.
-                //rootPage.NotifyUser(ex.Message, NotifyType.ErrorMessage);
+                rootPageNotifyUser(ex.Message, NotifyType.ErrorMessage);
                 return false;
             }
         }
@@ -894,7 +894,7 @@ namespace BtServer.ViewModels
                 catch (UnauthorizedAccessException ex)
                 {
                     // This usually happens when a device reports that it support indicate, but it actually doesn't.
-                    //rootPage.NotifyUser(ex.Message, NotifyType.ErrorMessage);
+                    rootPageNotifyUser(ex.Message, NotifyType.ErrorMessage);
                 }
             }
             else
@@ -911,13 +911,13 @@ namespace BtServer.ViewModels
                     {
                         subscribedForNotifications = false;
                         RemoveValueChangedHandler();
-                        //rootPage.NotifyUser("Successfully un-registered for notifications", NotifyType.StatusMessage);
+                        rootPageNotifyUser("Successfully un-registered for notifications", NotifyType.StatusMessage);
                     }
                 }
                 catch (UnauthorizedAccessException ex)
                 {
                     // This usually happens when a device reports that it support notify, but it actually doesn't.
-                    //rootPage.NotifyUser(ex.Message, NotifyType.ErrorMessage);
+                    rootPageNotifyUser(ex.Message, NotifyType.ErrorMessage);
                 }
             }
         }
@@ -1073,7 +1073,7 @@ namespace BtServer.ViewModels
 
             if (!await ClearBluetoothLEDeviceAsync())
             {
-                //rootPage.NotifyUser("Error: Unable to reset state, try again.", NotifyType.ErrorMessage);
+                rootPageNotifyUser("Error: Unable to reset state, try again.", NotifyType.ErrorMessage);
                 _connectAvailible = false;
                 return;
             }
@@ -1085,12 +1085,12 @@ namespace BtServer.ViewModels
 
                 if (bluetoothLeDevice == null)
                 {
-                    //rootPage.NotifyUser("Failed to connect to device.", NotifyType.ErrorMessage);
+                    rootPageNotifyUser("Failed to connect to device.", NotifyType.ErrorMessage);
                 }
             }
             catch (Exception ex) when (ex.HResult == E_DEVICE_NOT_AVAILABLE)
             {
-                //rootPage.NotifyUser("Bluetooth radio is not on.", NotifyType.ErrorMessage);
+                rootPageNotifyUser("Bluetooth radio is not on.", NotifyType.ErrorMessage);
             }
 
             if (bluetoothLeDevice != null)
@@ -1103,7 +1103,7 @@ namespace BtServer.ViewModels
                 if (result.Status == GattCommunicationStatus.Success)
                 {
                     var services = result.Services;
-                    //rootPage.NotifyUser(String.Format("Found {0} services", services.Count), NotifyType.StatusMessage);
+                    rootPageNotifyUser(String.Format("Found {0} services", services.Count), NotifyType.StatusMessage);
                     foreach (var service in services) ServiceCollection.Add(new BluetoothLEAttributeDisplay(service));
                     ConnectButtonVisibility = Visibility.Collapsed;
                     ServiceListVisibility = Visibility.Visible;
@@ -1156,7 +1156,7 @@ namespace BtServer.ViewModels
                 else
                 {
                     // Not granted access
-                    //rootPage.NotifyUser("Error accessing service.", NotifyType.ErrorMessage);
+                    rootPageNotifyUser("Error accessing service.", NotifyType.ErrorMessage);
 
                     // On error, act as if there are no characteristics.
                     characteristics = new List<GattCharacteristic>();
@@ -1164,7 +1164,7 @@ namespace BtServer.ViewModels
             }
             catch (Exception ex)
             {
-                //rootPage.NotifyUser("Restricted service. Can't read characteristics: " + ex.Message,NotifyType.ErrorMessage);
+                rootPageNotifyUser("Restricted service. Can't read characteristics: " + ex.Message,NotifyType.ErrorMessage);
                 // On error, act as if there are no characteristics.
                 characteristics = new List<GattCharacteristic>();
             }
@@ -1192,13 +1192,13 @@ namespace BtServer.ViewModels
             {
                 StartBleDeviceWatcher();
                 EnumerateButtonContent = "Stop enumerating";
-                //rootPage.NotifyUser($"Device watcher started.", NotifyType.StatusMessage);
+                rootPageNotifyUser($"Device watcher started.", NotifyType.StatusMessage);
             }
             else
             {
                 StopBleDeviceWatcher();
                 EnumerateButtonContent = InitialEnumerateButtonContent;
-                //rootPage.NotifyUser($"Device watcher stopped.", NotifyType.StatusMessage);
+                rootPageNotifyUser($"Device watcher stopped.", NotifyType.StatusMessage);
             }
         }    
 
@@ -1411,7 +1411,7 @@ namespace BtServer.ViewModels
                 // Protect against race condition if the task runs after the app stopped the deviceWatcher.
                 if (sender == deviceWatcher)
                 {
-                    //rootPage.NotifyUser($"{KnownDevices.Count} devices found. Enumeration completed.",NotifyType.StatusMessage);
+                    rootPageNotifyUser($"{KnownDevices.Count} devices found. Enumeration completed.",NotifyType.StatusMessage);
                 }
             });
         }
@@ -1424,7 +1424,7 @@ namespace BtServer.ViewModels
                 // Protect against race condition if the task runs after the app stopped the deviceWatcher.
                 if (sender == deviceWatcher)
                 {
-                    //rootPage.NotifyUser($"No longer watching for devices.",sender.Status == DeviceWatcherStatus.Aborted ? NotifyType.ErrorMessage : NotifyType.StatusMessage);
+                    rootPageNotifyUser($"No longer watching for devices.",sender.Status == DeviceWatcherStatus.Aborted ? NotifyType.ErrorMessage : NotifyType.StatusMessage);
                 }
             });
         }
@@ -1444,7 +1444,7 @@ namespace BtServer.ViewModels
 
             isBusy = true;
 
-            //rootPage.NotifyUser("Pairing started. Please wait...", NotifyType.StatusMessage);
+            rootPageNotifyUser("Pairing started. Please wait...", NotifyType.StatusMessage);
 
             // For more information about device pairing, including examples of
             // customizing the pairing process, see the DeviceEnumerationAndPairing sample.
@@ -1453,14 +1453,19 @@ namespace BtServer.ViewModels
             
             // BT_Code: Pair the currently selected device.
             DevicePairingResult result = await ResultsListViewSelectedItem.DeviceInformation.Pairing.PairAsync();
-            //rootPage.NotifyUser($"Pairing result = {result.Status}",
-            //    result.Status == DevicePairingResultStatus.Paired || result.Status == DevicePairingResultStatus.AlreadyPaired
-            //        ? NotifyType.StatusMessage
-            //        : NotifyType.ErrorMessage);
+            rootPageNotifyUser($"Pairing result = {result.Status}",
+                result.Status == DevicePairingResultStatus.Paired || result.Status == DevicePairingResultStatus.AlreadyPaired
+                    ? NotifyType.StatusMessage
+                    : NotifyType.ErrorMessage);
 
             isBusy = false;
         }
 
         #endregion
+
+        private void rootPageNotifyUser(string message, NotifyType notifyType)
+        {
+            Debug.WriteLine($"{notifyType} : {message}");
+        }
     }
 }
