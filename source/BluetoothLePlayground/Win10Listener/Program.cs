@@ -1,4 +1,5 @@
 ﻿using Windows.Devices.Bluetooth.Advertisement;
+using Windows.Storage.Streams;
 
 namespace ConsoleApplication1
 {
@@ -63,6 +64,30 @@ namespace ConsoleApplication1
             if (!string.IsNullOrWhiteSpace(eventArgs.Advertisement.LocalName))
             {
                 Console.WriteLine($"  FR_NAME: {eventArgs.Advertisement.LocalName}");    
+            }
+
+            foreach (var manufacturerData in eventArgs.Advertisement.ManufacturerData)
+            {
+                var reader = DataReader.FromBuffer(manufacturerData.Data);
+                //reader.UnicodeEncoding = Windows.Storage.Streams.UnicodeEncoding.Utf8;
+                var len = manufacturerData.Data.Length;
+                var bytes = new byte[len];
+                reader.ReadBytes(bytes);
+                var stringValue = System.Text.Encoding.Default.GetString(bytes);
+                if (!string.IsNullOrWhiteSpace(stringValue))
+                {
+                    Console.WriteLine($"  Text: {stringValue}");
+                }
+                
+                //read string throws an error
+                // try
+                // {
+                //     Console.WriteLine($"data: {reader.ReadString(manufacturerData.Data.Length)}");
+                // }
+                // catch (Exception e)
+                // {
+                //     //Console.WriteLine(e);
+                // }
             }
             Console.WriteLine();
         }
