@@ -1,0 +1,4 @@
+<FileList Name="Windows SDK .NET 6.0">
+  <File Type="Managed" Path="lib/net6.0/Microsoft.Windows.SDK.NET.dll" PublicKeyToken="31bf3856ad364e35" AssemblyName="Microsoft.Windows.SDK.NET" AssemblyVersion="10.0.22621.30" FileVersion="10.0.22621.30" />
+  <File Type="Managed" Path="lib/net6.0/WinRT.Runtime.dll" PublicKeyToken="99ea127f02d97709" AssemblyName="WinRT.Runtime" AssemblyVersion="2.0.0.0" FileVersion="2.0.3.42921" />
+</FileList>
