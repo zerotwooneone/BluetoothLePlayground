@@ -18,13 +18,14 @@ namespace ConsoleApplication1
             // Create Bluetooth Listener
             var watcher = new BluetoothLEAdvertisementWatcher();
 
-            watcher.ScanningMode = BluetoothLEScanningMode.Active;
+            //use Active to get more data from advertisements
+            watcher.ScanningMode = BluetoothLEScanningMode.Passive;
 
             // Only activate the watcher when we're recieving values >= -80
-            watcher.SignalStrengthFilter.InRangeThresholdInDBm = -80;
+            //watcher.SignalStrengthFilter.InRangeThresholdInDBm = -80;
 
             // Stop watching if the value drops below -90 (user walked away)
-            watcher.SignalStrengthFilter.OutOfRangeThresholdInDBm = -90;
+            //watcher.SignalStrengthFilter.OutOfRangeThresholdInDBm = -90;
 
             // Register callback for when we see an advertisements
             watcher.Received += OnAdvertisementReceived;
@@ -33,7 +34,7 @@ namespace ConsoleApplication1
 
             // Wait 5 seconds to make sure the device is really out of range
             watcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(5000);
-            watcher.SignalStrengthFilter.SamplingInterval = TimeSpan.FromMilliseconds(2000);
+            watcher.SignalStrengthFilter.SamplingInterval = TimeSpan.FromMilliseconds(200);
 
             // Starting watching for advertisements
             watcher.Start();
@@ -61,8 +62,11 @@ namespace ConsoleApplication1
         {
             // Tell the user we see an advertisement and print some properties
             Console.WriteLine("Advertisement:");
-            Console.WriteLine($"  BT_ADDR: {eventArgs.BluetoothAddress}");
-            Console.WriteLine($"  FR_NAME: {eventArgs.Advertisement.LocalName}");
+            Console.WriteLine($"  BT_ADDR: {eventArgs.BluetoothAddress} Str:{eventArgs.RawSignalStrengthInDBm}");
+            if (!string.IsNullOrWhiteSpace(eventArgs.Advertisement.LocalName))
+            {
+                Console.WriteLine($"  FR_NAME: {eventArgs.Advertisement.LocalName}");    
+            }
             Console.WriteLine();
         }
     }
