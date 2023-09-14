@@ -1,4 +1,5 @@
 ﻿using Windows.Devices.Bluetooth.Advertisement;
+using Windows.Storage.Streams;
 
 namespace ConsoleApplication1
 {
@@ -13,34 +14,31 @@ namespace ConsoleApplication1
         public Program()
         {
             // Create Bluetooth Listener
-            var watcher = new BluetoothLEAdvertisementWatcher();
+            var publisher = new BluetoothLEAdvertisementPublisher();
 
-            //use Active to get more data from advertisements
-            watcher.ScanningMode = BluetoothLEScanningMode.Passive;
+            publisher.StatusChanged += OnStatusChanged;
+            //publisher.Advertisement.LocalName = "test";
+            
+            // Add custom data to the advertisement
+            var manufacturerData = new BluetoothLEManufacturerData();
+            manufacturerData.CompanyId = 0xFFFE;
 
-            // Only activate the watcher when we're recieving values >= -80
-            //watcher.SignalStrengthFilter.InRangeThresholdInDBm = -80;
+            var writer = new DataWriter();
+            writer.WriteString("Hello World");
 
-            // Stop watching if the value drops below -90 (user walked away)
-            //watcher.SignalStrengthFilter.OutOfRangeThresholdInDBm = -90;
+// Make sure that the buffer length can fit within an advertisement payload (~20 bytes). 
+// Otherwise you will get an exception.
+            manufacturerData.Data = writer.DetachBuffer();
 
-            // Register callback for when we see an advertisements
-            watcher.Received += OnAdvertisementReceived;
-
-            watcher.Stopped += OnStopped;
-
-            // Wait 5 seconds to make sure the device is really out of range
-            watcher.SignalStrengthFilter.OutOfRangeTimeout = TimeSpan.FromMilliseconds(5000);
-            watcher.SignalStrengthFilter.SamplingInterval = TimeSpan.FromMilliseconds(200);
-
-            // Starting watching for advertisements
-            watcher.Start();
+// Add the manufacturer data to the advertisement publisher:
+            publisher.Advertisement.ManufacturerData.Add(manufacturerData);
+            
+            publisher.Start();
 
             bool cancelled = false;
             void OnCancelKey(object? sender, ConsoleCancelEventArgs e)
             {
                 Console.WriteLine("Cancel Pressed. Shutting down...");
-                watcher.Stop();
                 cancelled = true;
             }
             Console.CancelKeyPress += OnCancelKey;
@@ -48,6 +46,12 @@ namespace ConsoleApplication1
             {
                 Thread.Sleep(100);
             }
+            publisher.Stop();
+        }
+
+        private void OnStatusChanged(BluetoothLEAdvertisementPublisher sender, BluetoothLEAdvertisementPublisherStatusChangedEventArgs args)
+        {
+            Console.WriteLine($"status changed Status:{args.Status} Error:{args.Error} TransmitPower:{args.SelectedTransmitPowerLevelInDBm}");
         }
 
         private void OnStopped(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementWatcherStoppedEventArgs args)
