@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using ListenerGui.Main;
+using ListenerGui.ReactiveUtil;
 
 namespace ListenerGui
 {
@@ -16,7 +17,9 @@ namespace ListenerGui
     {
         private void App_OnStartup(object sender, StartupEventArgs e)
         {
-            var vm = new MainWindowViewmodel();
+            var schedulerLocator = new SchedulerLocator();
+            
+            var vm = new MainWindowViewmodel(schedulerLocator);
             var mainWindow = new MainWindow();
             mainWindow.DataContext = vm;
             mainWindow.Show();
