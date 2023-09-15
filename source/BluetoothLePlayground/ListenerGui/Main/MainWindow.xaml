@@ -4,8 +4,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ListenerGui"
+        xmlns:converters="clr-namespace:ListenerGui.Converters"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
+    <Window.Resources>
+        <converters:MacAddressConverter x:Key="MacAddressConverter"/>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"></RowDefinition>
@@ -25,7 +29,7 @@
             ItemsSource="{Binding Ads}">
             <ListView.View>
                 <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
-                    <GridViewColumn DisplayMemberBinding="{Binding BluetoothAddress}" Header="Address" Width="150"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding BluetoothAddress, Mode=OneWay, Converter={StaticResource MacAddressConverter}}" Header="Address" Width="150"/>
                     <GridViewColumn DisplayMemberBinding="{Binding RawSignalStrengthInDBm}" Header="DBm" Width="100" />
                 </GridView>
             </ListView.View>
