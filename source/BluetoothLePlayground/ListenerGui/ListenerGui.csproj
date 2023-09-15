@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net7.0-windows</TargetFramework>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+        <Nullable>enable</Nullable>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
+
+
+    <ItemGroup>
+      <Page Update="Main\MainWindow.xaml">
+        <Generator>MSBuild:Compile</Generator>
+        <XamlRuntime>Wpf</XamlRuntime>
+        <SubType>Designer</SubType>
+      </Page>
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <PackageReference Include="System.Reactive.Linq" Version="6.0.0" />
+    </ItemGroup>
+
+
+    <ItemGroup>
+      <Reference Include="Microsoft.Windows.SDK.NET">
+        <HintPath>..\..\..\bin\microsoft.windows.sdk.net.ref.10.0.22621.30\lib\net6.0\Microsoft.Windows.SDK.NET.dll</HintPath>
+      </Reference>
+    </ItemGroup>
+
+</Project>
