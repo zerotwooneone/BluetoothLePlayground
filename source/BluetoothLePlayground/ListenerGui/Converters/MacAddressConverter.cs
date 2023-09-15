@@ -9,23 +9,23 @@ public class MacAddressConverter : IValueConverter
 {
     public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        if (value == null)
-        {
-            return value;
-        }
-        var num = value as ulong?;
-        if (num == null)
+        if (value is not ulong num)
         {
             return value;
         }
 
         return string.Join(":",
-            BitConverter.GetBytes(num.Value).Reverse()
+            BitConverter.GetBytes(num).Reverse()
                 .Select(b => b.ToString("X2"))).Substring(6);
     }
 
     public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
-        throw new NotImplementedException();
+        if(!(value is string str))
+        {
+            return value;
+        }
+        string hex = str.Replace(":", "");
+        return System.Convert.ToUInt64(hex, 16);
     }
 }
