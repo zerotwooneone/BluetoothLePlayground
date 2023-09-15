@@ -20,5 +20,15 @@
         <StackPanel Grid.Row="1">
             <TextBlock Text="{Binding TestText, Mode=OneWay}"></TextBlock>
         </StackPanel>
+        <ListView 
+            Grid.Row="1"
+            ItemsSource="{Binding Ads}">
+            <ListView.View>
+                <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
+                    <GridViewColumn DisplayMemberBinding="{Binding BluetoothAddress}" Header="Address" Width="150"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding RawSignalStrengthInDBm}" Header="DBm" Width="100" />
+                </GridView>
+            </ListView.View>
+        </ListView>
     </Grid>
 </Window>

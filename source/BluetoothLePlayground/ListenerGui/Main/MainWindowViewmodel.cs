@@ -25,6 +25,13 @@ public class MainWindowViewmodel: INotifyPropertyChanged
     public ICommand StartCommand { get; }
     public ICommand StopCommand { get; }
     private readonly BroadcastCache BroadcastCache;
+    private IEnumerable<BluetoothLEAdvertisementReceivedEventArgs> _ads;
+
+    public IEnumerable<BluetoothLEAdvertisementReceivedEventArgs> Ads
+    {
+        get => _ads;
+        private set => SetField(ref _ads, value);
+    }
 
     public string TestText
     {
@@ -69,6 +76,10 @@ public class MainWindowViewmodel: INotifyPropertyChanged
             .Select(k=>k.EventArgs)
             .Subscribe(OnAdvertisementReceived)
         );
+        
+        _started.Add(
+            BroadcastCache.Cache.Subscribe(ads=>Ads=ads)
+        );
 
         watcher.Stopped += OnStopped;
 
@@ -90,7 +101,7 @@ public class MainWindowViewmodel: INotifyPropertyChanged
 
     private void OnStopped(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementWatcherStoppedEventArgs args)
     {
-        TestText = $"Stopped. Reason:{args.Error}";
+        //TestText = $"Stopped. Reason:{args.Error}";
         _started.Clear();
     }
 
