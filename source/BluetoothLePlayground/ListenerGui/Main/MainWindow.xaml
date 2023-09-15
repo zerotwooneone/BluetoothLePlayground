@@ -9,6 +9,17 @@
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
         <converters:MacAddressConverter x:Key="MacAddressConverter"/>
+        <DataTemplate x:Key="ManufacturerDataTemplate">
+            <ListView 
+                ItemsSource="{Binding ManufacturerData}">
+                <ListView.View>
+                    <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
+                        <GridViewColumn DisplayMemberBinding="{Binding Base64Data, Mode=OneWay}" Header="Base64" Width="150" />
+                        <GridViewColumn DisplayMemberBinding="{Binding CompanyId, Mode=OneWay}" Header="Company" Width="150"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </DataTemplate>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -29,8 +40,9 @@
             ItemsSource="{Binding Ads}">
             <ListView.View>
                 <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
-                    <GridViewColumn DisplayMemberBinding="{Binding BluetoothAddress, Mode=OneWay, Converter={StaticResource MacAddressConverter}}" Header="Address" Width="150"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding RawSignalStrengthInDBm}" Header="DBm" Width="100" />
+                    <GridViewColumn DisplayMemberBinding="{Binding BluetoothAddress, Mode=OneWay}" Header="Address" Width="120"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding RawSignalStrengthInDBm}" Header="DBm" Width="75" />
+                    <GridViewColumn CellTemplate="{StaticResource ManufacturerDataTemplate}" Header="Data" Width="300" />
                 </GridView>
             </ListView.View>
         </ListView>

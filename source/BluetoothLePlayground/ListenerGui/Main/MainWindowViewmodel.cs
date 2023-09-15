@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Foundation;
+using Windows.Storage.Streams;
 using ListenerGui.ReactiveUtil;
 using ListenerGui.WpfUtil;
 
@@ -21,22 +22,15 @@ public class MainWindowViewmodel: INotifyPropertyChanged
     private CompositeDisposable _started;
     private bool IsStarted => _started.Count != 0;
     private readonly Lazy<BluetoothLEAdvertisementWatcher> _watcher;
-    private string _testText;
     public ICommand StartCommand { get; }
     public ICommand StopCommand { get; }
     private readonly BroadcastCache BroadcastCache;
-    private IEnumerable<BluetoothLEAdvertisementReceivedEventArgs> _ads;
+    private IEnumerable<CacheModel> _ads;
 
-    public IEnumerable<BluetoothLEAdvertisementReceivedEventArgs> Ads
+    public IEnumerable<CacheModel> Ads
     {
         get => _ads;
         private set => SetField(ref _ads, value);
-    }
-
-    public string TestText
-    {
-        get => _testText;
-        private set => SetField(ref _testText, value);
     }
 
     public MainWindowViewmodel(ISchedulerLocator schedulerLocator)
@@ -96,7 +90,6 @@ public class MainWindowViewmodel: INotifyPropertyChanged
         BroadcastCache.Add(args);
         var xpart = args.Advertisement.ManufacturerData.ToArray();
         var ypart = xpart.Length > 0 ? string.Join(";",xpart.Select(x=>x.CompanyId.ToString())) : string.Empty;
-        TestText = $"ADDR:{args.BluetoothAddress} Str:{args.RawSignalStrengthInDBm} x:{ypart}";
     }
 
     private void OnStopped(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementWatcherStoppedEventArgs args)
@@ -135,16 +128,16 @@ internal class BroadcastCache
 {
     private const int DefaultMaxSize = 10000;
     public int Count => _collectionSubject.Value.Count();
-    private readonly BehaviorSubject<IEnumerable<BluetoothLEAdvertisementReceivedEventArgs>> _collectionSubject;
+    private readonly BehaviorSubject<IEnumerable<CacheModel>> _collectionSubject;
 
-    public IObservable<IEnumerable<BluetoothLEAdvertisementReceivedEventArgs>> Cache =>
+    public IObservable<IEnumerable<CacheModel>> Cache =>
         _collectionSubject.AsObservable();
 
-    public IObservable<IReadOnlyDictionary<ulong, IEnumerable<BluetoothLEAdvertisementReceivedEventArgs>>>
+    public IObservable<IReadOnlyDictionary<string, IEnumerable<CacheModel>>>
         AdvertisementsByAddress =>
         Cache
             .Select(list => list.GroupBy(arg => arg.BluetoothAddress).ToDictionary(g => g.Key,
-                g => (IEnumerable<BluetoothLEAdvertisementReceivedEventArgs>) g.ToArray()));
+                g => (IEnumerable<CacheModel>) g.ToArray()));
 
     private readonly int _maxSize;
     //private readonly ConcurrentQueue<BluetoothLEAdvertisementReceivedEventArgs> _queue;
@@ -154,11 +147,68 @@ internal class BroadcastCache
         _maxSize = maxSize < 1 ? DefaultMaxSize: maxSize;
         //_queue = new ConcurrentQueue<BluetoothLEAdvertisementReceivedEventArgs>();
         _collectionSubject =
-            new BehaviorSubject<IEnumerable<BluetoothLEAdvertisementReceivedEventArgs>>(
-                Enumerable.Empty<BluetoothLEAdvertisementReceivedEventArgs>());
+            new BehaviorSubject<IEnumerable<CacheModel>>(
+                Enumerable.Empty<CacheModel>());
     }
     public void Add(BluetoothLEAdvertisementReceivedEventArgs args)
     {
-        _collectionSubject.OnNext(_collectionSubject.Value.Append(args).TakeLast(_maxSize).ToArray());
+        var newModel = new CacheModel
+        {
+            Args = args,
+            BluetoothAddress = GetMac(args.BluetoothAddress),
+            RawSignalStrengthInDBm = args.RawSignalStrengthInDBm,
+            ManufacturerData = GetManuData(args.Advertisement.ManufacturerData)
+        };
+        _collectionSubject.OnNext(_collectionSubject.Value.Append(newModel).TakeLast(_maxSize).ToArray());
     }
+
+    private IEnumerable<ManufacturerDataModel> GetManuData(IList<BluetoothLEManufacturerData> manufacturerData)
+    {
+        if (manufacturerData == null)
+        {
+            return Enumerable.Empty<ManufacturerDataModel>();
+        }
+
+        return manufacturerData.Select(d =>
+        {
+            return new ManufacturerDataModel
+            {
+                CompanyId = d.CompanyId,
+                Base64Data = GetBase64(d.Data)
+            };
+        }).ToArray();
+    }
+    
+    public string GetBase64(IBuffer buffer)
+    {
+        if (buffer == null)
+        {
+            return string.Empty;
+        }
+        var reader = DataReader.FromBuffer(buffer);
+        var bytes = new byte[buffer.Length];
+        reader.ReadBytes(bytes);
+        return System.Convert.ToBase64String(bytes);
+    }
+
+    private string GetMac(ulong bluetoothAddress)
+    {
+        return string.Join(":",
+            BitConverter.GetBytes(bluetoothAddress).Reverse()
+                .Select(b => b.ToString("X2"))).Substring(6);
+    }
+}
+
+public struct CacheModel
+{
+    public BluetoothLEAdvertisementReceivedEventArgs Args { get; init; }
+    public string BluetoothAddress { get; init; }
+    public short RawSignalStrengthInDBm { get; init; }
+    public IEnumerable<ManufacturerDataModel> ManufacturerData { get; init; }
+}
+
+public struct ManufacturerDataModel
+{
+    public string Base64Data { get; init; }
+    public ushort CompanyId { get; init; }
 }
