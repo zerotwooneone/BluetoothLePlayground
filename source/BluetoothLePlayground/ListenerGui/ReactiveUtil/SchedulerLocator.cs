@@ -23,4 +23,6 @@ public class SchedulerLocator : ISchedulerLocator
     {
         return _scheduler;
     }
+
+    public SynchronizationContext GuiContext => SynchronizationContext.Current;
 }
