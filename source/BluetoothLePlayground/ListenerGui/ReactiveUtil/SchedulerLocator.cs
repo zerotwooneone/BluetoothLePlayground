@@ -24,5 +24,17 @@ public class SchedulerLocator : ISchedulerLocator
         return _scheduler;
     }
 
-    public SynchronizationContext GuiContext => SynchronizationContext.Current;
+    private SynchronizationContext? _synchronizationContext;
+    public SynchronizationContext GuiContext
+    {
+        get
+        {
+            if (_synchronizationContext == null && SynchronizationContext.Current != null)
+            {
+                //this is a horrible hack, not sure why we need this
+                _synchronizationContext = SynchronizationContext.Current;
+            }
+            return SynchronizationContext.Current ?? _synchronizationContext;
+        }
+    }
 }

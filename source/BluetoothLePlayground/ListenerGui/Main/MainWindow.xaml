@@ -18,6 +18,16 @@
                 </ListView.View>
             </ListView>
         </DataTemplate>
+        <DataTemplate x:Key="BroadcasterDataTemplate">
+            <ListView 
+                ItemsSource="{Binding Adverts}">
+                <ListView.View>
+                    <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
+                        <GridViewColumn DisplayMemberBinding="{Binding RawSignalStrengthInDBm, Mode=OneWay}" Header="StrengthInDBm" Width="75" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </DataTemplate>
     </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -30,19 +40,33 @@
             <Button Command="{Binding StartCommand, Mode=OneWay}">Start</Button>
             <Button Command="{Binding StopCommand, Mode=OneWay}">Stop</Button>
         </StackPanel>
-        <StackPanel Grid.Row="1">
-            <TextBlock Text="{Binding TestText, Mode=OneWay}"></TextBlock>
-        </StackPanel>
-        <ListView 
+        <TabControl 
             Grid.Row="1"
-            ItemsSource="{Binding Ads}">
-            <ListView.View>
-                <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
-                    <GridViewColumn DisplayMemberBinding="{Binding BluetoothAddress, Mode=OneWay}" Header="Address" Width="120"/>
-                    <GridViewColumn DisplayMemberBinding="{Binding RawSignalStrengthInDBm}" Header="DBm" Width="75" />
-                    <GridViewColumn CellTemplate="{StaticResource ManufacturerDataTemplate}" Header="Data" Width="300" />
-                </GridView>
-            </ListView.View>
-        </ListView>
+            Margin="5"
+            SelectedIndex="{Binding SelectedTabIndex, Mode=OneWayToSource}">
+            <TabItem Header="All Ads">
+                <ListView 
+                        ItemsSource="{Binding Ads}">
+                        <ListView.View>
+                            <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
+                                <GridViewColumn DisplayMemberBinding="{Binding BluetoothAddress, Mode=OneWay}" Header="Address" Width="120"/>
+                                <GridViewColumn DisplayMemberBinding="{Binding RawSignalStrengthInDBm}" Header="DBm" Width="75" />
+                                <GridViewColumn CellTemplate="{StaticResource ManufacturerDataTemplate}" Header="Data" Width="300" />
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+            </TabItem>
+            <TabItem Header="Broadcasters">
+                <ListView 
+                    ItemsSource="{Binding Broadcasters}">
+                    <ListView.View>
+                        <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
+                            <GridViewColumn DisplayMemberBinding="{Binding Id, Mode=OneWay}" Header="Address" Width="120"/>
+                            <GridViewColumn CellTemplate="{StaticResource BroadcasterDataTemplate}" Header="Data" Width="300" />
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Window>
