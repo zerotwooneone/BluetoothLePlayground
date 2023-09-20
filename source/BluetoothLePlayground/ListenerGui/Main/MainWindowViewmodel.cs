@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
@@ -47,30 +48,56 @@ public class MainWindowViewmodel: INotifyPropertyChanged
                 case 1:
                     _tab1Disposables.Add(
                         BroadcastCache.Cache
+                            .ObserveOn(_schedulerLocator.Get("broadcast cache"))
                             .GroupBy(c=>c.BluetoothAddress)
+                            .Select(g=>new BroadcasterViewmodel(g.Key, _schedulerLocator, g,10))
                             .ObserveOn(_schedulerLocator.GuiContext)
-                            .Subscribe(g =>
+                            .Select(vm =>
                             {
-                                var broadcasterViewmodel = new BroadcasterViewmodel(g.Key, _schedulerLocator, g,10);
-                                Broadcasters.Add(broadcasterViewmodel);
-                                while(Broadcasters.Count>MaxBroadcasters)
+                                Broadcasters.Add(vm);
+                                return Unit.Default;
+                            })
+                            .ObserveOn(_schedulerLocator.Get("broadcaster overflow"))
+                            .Select(_ =>
+                            {
+                                var sorted = Broadcasters.OrderByDescending(s => s.LastAdvert);
+                                return sorted.Skip(MaxBroadcasters).ToArray();
+                            })
+                            .ObserveOn(_schedulerLocator.GuiContext)
+                            .SelectMany(toRemove =>
+                            {
+                                foreach (var remove in toRemove)
                                 {
-                                    var oldest = Broadcasters.Aggregate((i1,i2) => i1.LastAdvert < i2.LastAdvert ? i1 : i2);
-                                    Broadcasters.Remove(oldest);
+                                    Broadcasters.Remove(remove);
                                 }
-                            }));
+
+                                return toRemove;
+                            })
+                            .ObserveOn(_schedulerLocator.Get("broadcaster dispose"))
+                            .Subscribe(vm =>
+                            {
+                                vm.Dispose();
+                            })
+                        );
                     break;
                 default:
                 case 0:
                     _tab0Disposables.Add(
                         BroadcastCache.Cache
                             .ObserveOn(_schedulerLocator.GuiContext)
-                            .Subscribe(c=>
+                            .Select(c =>
                             {
                                 Ads.Insert(0, c);
-                                while (Ads.Count>MaxDisplayedAdvertisements)
+                                return Unit.Default;
+                            })
+                            .ObserveOn(_schedulerLocator.Get("find old ads"))
+                            .Select(_ => Ads.Skip(MaxDisplayedAdvertisements).ToArray())
+                            .ObserveOn(_schedulerLocator.GuiContext)
+                            .Subscribe(toRemove=>
+                            {
+                                foreach (var remove in toRemove)
                                 {
-                                    Ads.RemoveAt(Ads.Count-1);
+                                    Ads.Remove(remove);
                                 }
                             })
                     );
