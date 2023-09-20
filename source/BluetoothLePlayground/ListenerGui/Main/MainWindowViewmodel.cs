@@ -50,7 +50,7 @@ public class MainWindowViewmodel: INotifyPropertyChanged
                         BroadcastCache.Cache
                             .ObserveOn(_schedulerLocator.Get("broadcast cache"))
                             .GroupBy(c=>c.BluetoothAddress)
-                            .Select(g=>new BroadcasterViewmodel(g.Key, _schedulerLocator, g,10))
+                            .Select(g=>new BroadcasterViewmodel(g.Key, _schedulerLocator, g,10, 10))
                             .ObserveOn(_schedulerLocator.GuiContext)
                             .Select(vm =>
                             {
@@ -194,64 +194,5 @@ public class MainWindowViewmodel: INotifyPropertyChanged
         field = value;
         OnPropertyChanged(propertyName);
         return true;
-    }
-}
-
-public class BroadcasterViewmodel : INotifyPropertyChanged, IDisposable
-{
-    public string Id { get; }
-    public ObservableCollection<CacheModel> Adverts { get; }
-    private readonly CompositeDisposable _subscriptions;
-    private DateTimeOffset _lastAdvert;
-
-    public DateTimeOffset LastAdvert
-    {
-        get => _lastAdvert;
-        private set => SetField(ref _lastAdvert, value);
-    }
-
-    public BroadcasterViewmodel(
-        string id,
-        ISchedulerLocator schedulerLocator,
-        IObservable<CacheModel> cache,
-        int maxAdverts)
-    {
-        _subscriptions = new CompositeDisposable();
-        Id = id;
-        Adverts = new ObservableCollection<CacheModel>();
-        LastAdvert = DateTimeOffset.Now;
-
-        _subscriptions.Add(
-            cache
-                .ObserveOn(schedulerLocator.GuiContext)
-                .Subscribe(m =>
-                {
-                    LastAdvert = m.Args.Timestamp;
-                    Adverts.Insert(0, m);
-                    while (Adverts.Count > maxAdverts)
-                    {
-                        Adverts.RemoveAt(Adverts.Count - 1);
-                    }
-                })
-        );
-    }
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-    }
-
-    protected bool SetField<T>(ref T field, T value, [CallerMemberName] string? propertyName = null)
-    {
-        if (EqualityComparer<T>.Default.Equals(field, value)) return false;
-        field = value;
-        OnPropertyChanged(propertyName);
-        return true;
-    }
-
-    public void Dispose()
-    {
-        _subscriptions.Dispose();
     }
 }

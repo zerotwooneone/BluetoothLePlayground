@@ -4,9 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ListenerGui"
+        xmlns:main="clr-namespace:ListenerGui.Main"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
+        <main:DateTimeOffsetValueConverter x:Key="DateTimeOffsetValueConverter"/>
         <DataTemplate x:Key="ManufacturerDataTemplate">
             <ListView 
                 ItemsSource="{Binding ManufacturerData}">
@@ -18,12 +20,13 @@
                 </ListView.View>
             </ListView>
         </DataTemplate>
-        <DataTemplate x:Key="BroadcasterDataTemplate">
+        <DataTemplate x:Key="BroadcasterDataTemplate" DataType="{x:Type main:DataViewmodel}">
             <ListView 
-                ItemsSource="{Binding Adverts}">
+                ItemsSource="{Binding Data}">
                 <ListView.View>
                     <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
-                        <GridViewColumn DisplayMemberBinding="{Binding RawSignalStrengthInDBm, Mode=OneWay}" Header="StrengthInDBm" Width="75" />
+                        <GridViewColumn DisplayMemberBinding="{Binding  TimeStamp, Mode=OneWay, Converter={StaticResource DateTimeOffsetValueConverter}}" Header="Time" />
+                        <GridViewColumn DisplayMemberBinding="{Binding  Base64Data, Mode=OneWay}" Header="Base64" />
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -51,7 +54,7 @@
                             <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
                                 <GridViewColumn DisplayMemberBinding="{Binding BluetoothAddress, Mode=OneWay}" Header="Address" Width="120"/>
                                 <GridViewColumn DisplayMemberBinding="{Binding RawSignalStrengthInDBm}" Header="DBm" Width="75" />
-                                <GridViewColumn CellTemplate="{StaticResource ManufacturerDataTemplate}" Header="Data" Width="300" />
+                                <GridViewColumn CellTemplate="{StaticResource ManufacturerDataTemplate}" Header="Data" />
                             </GridView>
                         </ListView.View>
                     </ListView>
@@ -61,7 +64,23 @@
                     ItemsSource="{Binding Broadcasters}">
                     <ListView.View>
                         <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
-                            <GridViewColumn DisplayMemberBinding="{Binding Id, Mode=OneWay}" Header="Address" Width="120"/>
+                            <GridViewColumn Header="Source" Width="120">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type main:BroadcasterViewmodel}">
+                                        <StackPanel Orientation="Vertical">
+                                            <TextBlock Text="{Binding Id, Mode=OneWay}"></TextBlock>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock>Signal DBm:</TextBlock>
+                                                <TextBlock Text="{Binding SignalDbm}"></TextBlock>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock>Average Signal:</TextBlock>
+                                                <TextBlock Text="{Binding SignalAverage}"></TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                             <GridViewColumn CellTemplate="{StaticResource BroadcasterDataTemplate}" Header="Data" Width="300" />
                         </GridView>
                     </ListView.View>
