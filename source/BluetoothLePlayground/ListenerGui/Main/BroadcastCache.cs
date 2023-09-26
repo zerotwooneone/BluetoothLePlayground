@@ -59,24 +59,43 @@ internal class BroadcastCache
 
         return manufacturerData.Select(d =>
         {
+            var bytes = GetBytes(d.Data);
+            var utf8Data = GetUtf(bytes);
             return new ManufacturerDataModel
             {
                 CompanyId = d.CompanyId,
-                Base64Data = GetBase64(d.Data)
+                Base64Data = GetBase64(bytes),
+                Utf8Data = utf8Data
             };
         }).ToArray();
     }
-    
-    public string GetBase64(IBuffer buffer)
+
+    private string GetUtf(byte[] bytes)
+    {
+        var stringValue = System.Text.Encoding.Default.GetString(bytes);
+        if (string.IsNullOrWhiteSpace(stringValue))
+        {
+            return string.Empty;
+        }
+
+        return stringValue;
+    }
+
+    public string GetBase64(byte[] bytes)
+    {
+        return System.Convert.ToBase64String(bytes);
+    }
+
+    private static byte[] GetBytes(IBuffer buffer)
     {
         if (buffer == null)
         {
-            return string.Empty;
+            return Array.Empty<byte>();
         }
         var reader = DataReader.FromBuffer(buffer);
         var bytes = new byte[buffer.Length];
         reader.ReadBytes(bytes);
-        return System.Convert.ToBase64String(bytes);
+        return bytes;
     }
 
     private string GetMac(ulong bluetoothAddress)

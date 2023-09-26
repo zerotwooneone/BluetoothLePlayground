@@ -8,14 +8,17 @@ namespace ListenerGui.Main;
 public class DataViewmodel : INotifyPropertyChanged
 {
     public DateTimeOffset TimeStamp { get; }
-    public string Base64Data { get; }
+    public string? Base64Data { get; }
+    public string? Utf8Data { get; }
 
     public DataViewmodel(
         DateTimeOffset timeStamp,
-        string base64Data)
+        string? base64Data,
+        string? utf8Data)
     {
         TimeStamp = timeStamp;
         Base64Data = base64Data;
+        Utf8Data = utf8Data;
     }
     public event PropertyChangedEventHandler? PropertyChanged;
 

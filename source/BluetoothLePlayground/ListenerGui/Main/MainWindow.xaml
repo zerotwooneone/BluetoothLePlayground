@@ -16,6 +16,7 @@
                     <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
                         <GridViewColumn DisplayMemberBinding="{Binding Base64Data, Mode=OneWay}" Header="Base64" Width="150" />
                         <GridViewColumn DisplayMemberBinding="{Binding CompanyId, Mode=OneWay}" Header="Company" Width="150"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding Utf8Data, Mode=OneWay}" Header="Utf8" Width="150" />
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -27,6 +28,7 @@
                     <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
                         <GridViewColumn DisplayMemberBinding="{Binding  TimeStamp, Mode=OneWay, Converter={StaticResource DateTimeOffsetValueConverter}}" Header="Time" />
                         <GridViewColumn DisplayMemberBinding="{Binding  Base64Data, Mode=OneWay}" Header="Base64" />
+                        <GridViewColumn DisplayMemberBinding="{Binding  Utf8Data, Mode=OneWay}" Header="Utf8" />
                     </GridView>
                 </ListView.View>
             </ListView>
@@ -81,7 +83,7 @@
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
-                            <GridViewColumn CellTemplate="{StaticResource BroadcasterDataTemplate}" Header="Data" Width="300" />
+                            <GridViewColumn CellTemplate="{StaticResource BroadcasterDataTemplate}" Header="Data"  />
                         </GridView>
                     </ListView.View>
                 </ListView>

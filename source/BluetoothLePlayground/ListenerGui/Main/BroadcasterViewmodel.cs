@@ -65,10 +65,12 @@ public class BroadcasterViewmodel : INotifyPropertyChanged, IDisposable
                     {
                         Adverts.RemoveAt(Adverts.Count - 1);
                     }
-                    
+
+                    var manufacturerDataModel = m.ManufacturerData.FirstOrDefault();
                     Data.Insert(0, new DataViewmodel(
                         m.Args.Timestamp,
-                        m.ManufacturerData.FirstOrDefault().Base64Data));
+                        manufacturerDataModel.Base64Data,
+                        manufacturerDataModel.Utf8Data));
                     while (Data.Count>maxAdverts)
                     {   
                         Data.RemoveAt(Data.Count-1);
