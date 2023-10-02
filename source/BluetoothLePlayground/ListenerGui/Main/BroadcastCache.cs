@@ -48,7 +48,7 @@ internal class BroadcastCache
         _cacheSubject.OnNext(newModel);
     }
 
-    private IEnumerable<ManufacturerDataModel> GetManuData(IList<BluetoothLEManufacturerData> manufacturerData)
+    private IEnumerable<ManufacturerDataModel> GetManuData(IList<BluetoothLEManufacturerData>? manufacturerData)
     {
         if (manufacturerData == null)
         {
@@ -81,10 +81,10 @@ internal class BroadcastCache
 
     public string GetBase64(byte[] bytes)
     {
-        return System.Convert.ToBase64String(bytes);
+        return Convert.ToBase64String(bytes);
     }
 
-    private static byte[] GetBytes(IBuffer buffer)
+    private static byte[] GetBytes(IBuffer? buffer)
     {
         if (buffer == null)
         {
