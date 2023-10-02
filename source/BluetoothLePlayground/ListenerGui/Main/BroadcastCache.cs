@@ -15,18 +15,16 @@ internal class BroadcastCache
     private readonly Subject<CacheModel> _cacheSubject;
 
     public IObservable<CacheModel> Cache { get; private set; }
-        
-    private readonly int _maxSize;
 
     public BroadcastCache(int maxSize = DefaultMaxSize)
     {
-        _maxSize = maxSize < 1 ? DefaultMaxSize: maxSize;
+        var maxSize1 = maxSize < 1 ? DefaultMaxSize: maxSize;
         _cacheSubject =
             new Subject<CacheModel>();
 
         _cacheSubject
             .AsObservable()
-            .Take(_maxSize)
+            .Take(maxSize1)
             .Subscribe(_ =>
             {
                 Count++;
@@ -34,7 +32,7 @@ internal class BroadcastCache
         
         var cache = _cacheSubject
             .AsObservable()
-            .Replay(_maxSize);
+            .Replay(maxSize1);
         cache.Connect();
         Cache = cache;
     }
