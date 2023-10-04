@@ -32,6 +32,7 @@ public class MainWindowViewmodel: INotifyPropertyChanged
     
     public ObservableCollection<BroadcasterViewmodel> Broadcasters { get; }
 
+    private static readonly ManufacturerDataModel DefaultManufacturerDataModel = default;
     public int SelectedTabIndex
     {
         private get => _selectedTabIndex;
@@ -39,7 +40,7 @@ public class MainWindowViewmodel: INotifyPropertyChanged
         {
             _selectedTabIndex = value;
 
-            Ads.Clear();
+            Advertisements.Clear();
             Broadcasters.DisposeAll().Clear();
             _tab0Disposables.Clear();
             _tab1Disposables.Clear();
@@ -84,20 +85,28 @@ public class MainWindowViewmodel: INotifyPropertyChanged
                 case 0:
                     _tab0Disposables.Add(
                         BroadcastCache.Cache
+                            .ObserveOn(_schedulerLocator.Get("convert advertisement"))
+                            .Select(c=>
+                            {
+                                var manufacturerData = c.ManufacturerData.ToArray();
+                                var firstData = manufacturerData.FirstOrDefault(d => !DefaultManufacturerDataModel.Equals(d));
+                                var dataViewmodel = new DataViewmodel(c.Args.Timestamp, firstData.Base64Data, firstData.Utf8Data, firstData.HexData);
+                                return new AdvertisementViewmodel(c.BluetoothAddress, c.RawSignalStrengthInDBm, dataViewmodel);
+                            })
                             .ObserveOn(_schedulerLocator.GuiContext)
                             .Select(c =>
                             {
-                                Ads.Insert(0, c);
+                                Advertisements.Insert(0, c);
                                 return Unit.Default;
                             })
                             .ObserveOn(_schedulerLocator.Get("find old ads"))
-                            .Select(_ => Ads.Skip(MaxDisplayedAdvertisements).ToArray())
+                            .Select(_ => Advertisements.Skip(MaxDisplayedAdvertisements).ToArray())
                             .ObserveOn(_schedulerLocator.GuiContext)
                             .Subscribe(toRemove=>
                             {
                                 foreach (var remove in toRemove)
                                 {
-                                    Ads.Remove(remove);
+                                    Advertisements.Remove(remove);
                                 }
                             })
                     );
@@ -106,13 +115,13 @@ public class MainWindowViewmodel: INotifyPropertyChanged
         }
     }
 
-    public ObservableCollection<CacheModel> Ads { get; }
+    public ObservableCollection<AdvertisementViewmodel> Advertisements { get; }
 
     public MainWindowViewmodel(ISchedulerLocator schedulerLocator)
     {
         _tab0Disposables = new CompositeDisposable();
         _tab1Disposables = new CompositeDisposable();
-        Ads = new ObservableCollection<CacheModel>();
+        Advertisements = new ObservableCollection<AdvertisementViewmodel>();
         Broadcasters = new ObservableCollection<BroadcasterViewmodel>();
         BroadcastCache = new BroadcastCache();
         _started = new CompositeDisposable();

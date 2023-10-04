@@ -70,7 +70,8 @@ public class BroadcasterViewmodel : INotifyPropertyChanged, IDisposable
                     Data.Insert(0, new DataViewmodel(
                         m.Args.Timestamp,
                         manufacturerDataModel.Base64Data,
-                        manufacturerDataModel.Utf8Data));
+                        manufacturerDataModel.Utf8Data, 
+                        manufacturerDataModel.HexData));
                     while (Data.Count>maxAdverts)
                     {   
                         Data.RemoveAt(Data.Count-1);

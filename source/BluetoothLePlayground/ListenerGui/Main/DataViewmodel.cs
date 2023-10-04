@@ -10,15 +10,17 @@ public class DataViewmodel : INotifyPropertyChanged
     public DateTimeOffset TimeStamp { get; }
     public string? Base64Data { get; }
     public string? Utf8Data { get; }
+    public string? HexData { get; }
 
-    public DataViewmodel(
-        DateTimeOffset timeStamp,
+    public DataViewmodel(DateTimeOffset timeStamp,
         string? base64Data,
-        string? utf8Data)
+        string? utf8Data, 
+        string? hexData)
     {
         TimeStamp = timeStamp;
         Base64Data = base64Data;
         Utf8Data = utf8Data;
+        HexData = hexData;
     }
     public event PropertyChangedEventHandler? PropertyChanged;
 

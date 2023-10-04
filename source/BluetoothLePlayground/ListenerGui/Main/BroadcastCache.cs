@@ -59,13 +59,20 @@ internal class BroadcastCache
         {
             var bytes = GetBytes(d.Data);
             var utf8Data = GetUtf(bytes);
+            var hexData = GetHex(bytes);
             return new ManufacturerDataModel
             {
                 CompanyId = d.CompanyId,
                 Base64Data = GetBase64(bytes),
-                Utf8Data = utf8Data
+                Utf8Data = utf8Data,
+                HexData = hexData
             };
         }).ToArray();
+    }
+
+    private string GetHex(byte[] bytes)
+    {
+        return Convert.ToHexString(bytes);
     }
 
     private string GetUtf(byte[] bytes)
