@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -29,8 +30,21 @@ public class MainWindowViewmodel: INotifyPropertyChanged
     public ICommand StopCommand { get; }
     private readonly BroadcastCache BroadcastCache;
     private int _selectedTabIndex;
-    
+    private IList _selectedBroadcasters;
+
     public ObservableCollection<BroadcasterViewmodel> Broadcasters { get; }
+
+    public IList SelectedBroadcasters
+    {
+        get => _selectedBroadcasters;
+        set
+        {
+            if (SetField(ref _selectedBroadcasters, value))
+            {
+                int x = 0;
+            }
+        }
+    }
 
     private static readonly ManufacturerDataModel DefaultManufacturerDataModel = default;
     public int SelectedTabIndex
@@ -38,15 +52,23 @@ public class MainWindowViewmodel: INotifyPropertyChanged
         private get => _selectedTabIndex;
         set
         {
+            var previousTabIndex = _selectedTabIndex;
             _selectedTabIndex = value;
 
             Advertisements.Clear();
-            Broadcasters.DisposeAll().Clear();
+            
             _tab0Disposables.Clear();
-            _tab1Disposables.Clear();
+
+            if (previousTabIndex <= 0 || _selectedTabIndex <= 0)
+            {
+                Broadcasters.DisposeAll().Clear();
+                _tab1Disposables.Clear();
+            }
+
             switch (value)
             {
                 case 1:
+                case 2:
                     _tab1Disposables.Add(
                         BroadcastCache.Cache
                             .ObserveOn(_schedulerLocator.Get("broadcast cache"))
@@ -56,12 +78,14 @@ public class MainWindowViewmodel: INotifyPropertyChanged
                             .Select(vm =>
                             {
                                 Broadcasters.Add(vm);
-                                return Unit.Default;
+
+                                //need ToArray to avoid exception changing the list size during the next operation
+                                return Broadcasters.ToArray();
                             })
                             .ObserveOn(_schedulerLocator.Get("broadcaster overflow"))
-                            .Select(_ =>
+                            .Select(array =>
                             {
-                                var sorted = Broadcasters.OrderByDescending(s => s.LastAdvert);
+                                var sorted = array.OrderByDescending(s => s.LastAdvert);
                                 return sorted.Skip(MaxBroadcasters).ToArray();
                             })
                             .ObserveOn(_schedulerLocator.GuiContext)
@@ -97,10 +121,10 @@ public class MainWindowViewmodel: INotifyPropertyChanged
                             .Select(c =>
                             {
                                 Advertisements.Insert(0, c);
-                                return Unit.Default;
+                                return Advertisements.ToArray();
                             })
                             .ObserveOn(_schedulerLocator.Get("find old ads"))
-                            .Select(_ => Advertisements.Skip(MaxDisplayedAdvertisements).ToArray())
+                            .Select(array => array.Skip(MaxDisplayedAdvertisements).ToArray())
                             .ObserveOn(_schedulerLocator.GuiContext)
                             .Subscribe(toRemove=>
                             {
@@ -123,6 +147,7 @@ public class MainWindowViewmodel: INotifyPropertyChanged
         _tab1Disposables = new CompositeDisposable();
         Advertisements = new ObservableCollection<AdvertisementViewmodel>();
         Broadcasters = new ObservableCollection<BroadcasterViewmodel>();
+        SelectedBroadcasters = new ObservableCollection<BroadcasterViewmodel>();
         BroadcastCache = new BroadcastCache();
         _started = new CompositeDisposable();
         _schedulerLocator = schedulerLocator;

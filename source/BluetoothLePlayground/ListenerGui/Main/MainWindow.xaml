@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ListenerGui"
         xmlns:main="clr-namespace:ListenerGui.Main"
+        xmlns:listViewUtil="clr-namespace:ListenerGui.ListViewUtil"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Window.Resources>
@@ -69,8 +70,10 @@
                     </ListView>
             </TabItem>
             <TabItem Header="Broadcasters">
-                <ListView 
-                    ItemsSource="{Binding Broadcasters}">
+                <listViewUtil:MultiSelectListView 
+                    ItemsSource="{Binding Broadcasters}"
+                    SelectedItems="{Binding SelectedBroadcasters, Mode=OneWayToSource}"
+                    SelectionMode="Multiple">
                     <ListView.View>
                         <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
                             <GridViewColumn Header="Source" Width="120">
@@ -93,7 +96,34 @@
                             <GridViewColumn CellTemplate="{StaticResource BroadcasterDataTemplate}" Header="Data"  />
                         </GridView>
                     </ListView.View>
-                </ListView>
+                </listViewUtil:MultiSelectListView>
+            </TabItem>
+            <TabItem Header="Selected">
+                <listViewUtil:MultiSelectListView 
+                    ItemsSource="{Binding SelectedBroadcasters}">
+                    <ListView.View>
+                        <GridView AllowsColumnReorder="true" ColumnHeaderToolTip="Ad Information">
+                            <GridViewColumn Header="Source" Width="120">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate DataType="{x:Type main:BroadcasterViewmodel}">
+                                        <StackPanel Orientation="Vertical">
+                                            <TextBlock Text="{Binding Id, Mode=OneWay}"></TextBlock>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock>Signal DBm:</TextBlock>
+                                                <TextBlock Text="{Binding SignalDbm}"></TextBlock>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock>Average Signal:</TextBlock>
+                                                <TextBlock Text="{Binding SignalAverage}"></TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn CellTemplate="{StaticResource BroadcasterDataTemplate}" Header="Data"  />
+                        </GridView>
+                    </ListView.View>
+                </listViewUtil:MultiSelectListView>
             </TabItem>
         </TabControl>
     </Grid>
